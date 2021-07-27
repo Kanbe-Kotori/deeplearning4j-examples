@@ -37,7 +37,7 @@
         <maven.minimum.version>3.3.1</maven.minimum.version>
         <exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>
         <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
-        <logback.version>1.1.7</logback.version>
+        <logback.version>1.2.0</logback.version>
         <scala.binary.version>2.11</scala.binary.version>
         <spark.version>2.4.3</spark.version>
     </properties>
