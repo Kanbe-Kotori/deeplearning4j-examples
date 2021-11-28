@@ -8,8 +8,8 @@ public class GANMain {
 
     public static void main(String[] Args) {
         try {
-            GANTrainer.train2();
-            ComputationGraph restored = ComputationGraph.load(new File("E:/Temp/wgan-10000.zip"), true);
+            //GANTrainer.train3();
+            ComputationGraph restored = ComputationGraph.load(new File("E:/Temp/hggan-20000.zip"), true);
             Visualizer.showBest(restored);
         } catch(Exception e) {
             e.printStackTrace();

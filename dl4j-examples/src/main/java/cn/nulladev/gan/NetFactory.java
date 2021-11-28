@@ -24,6 +24,7 @@ public class NetFactory {
 
     public static final double MAX_W = 0.01D;
 
+    //vanilla GAN net
     public static GraphBuilder createBuilder() {
         GraphBuilder builder = new NeuralNetConfiguration.Builder()
                 .seed(19260817L)
@@ -92,6 +93,7 @@ public class NetFactory {
         return builder;
     }
 
+    //WGAN-GP net
     public static GraphBuilder createBuilder2() {
         GraphBuilder builder = new NeuralNetConfiguration.Builder()
                 .seed(19260817L)
@@ -168,6 +170,74 @@ public class NetFactory {
         return builder;
     }
 
+    public static GraphBuilder createBuilder3() {
+        GraphBuilder builder = new NeuralNetConfiguration.Builder()
+                .seed(19260817L)
+                .updater(new Sgd(LEARNING_RATE))
+                .weightInit(WeightInit.XAVIER)
+                .graphBuilder()
+                .backpropType(BackpropType.Standard)
+                .addInputs("input_1", "input_2")
+                .addLayer("gen_l1",
+                        new DenseLayer.Builder()
+                                .nIn(10)
+                                .nOut(128)
+                                .activation(Activation.RELU)
+                                .weightInit(WeightInit.XAVIER)
+                                .build(),
+                        "input_1")
+                .addLayer("gen_l2",
+                        new DenseLayer.Builder()
+                                .nIn(128)
+                                .nOut(512)
+                                .activation(Activation.RELU)
+                                .weightInit(WeightInit.XAVIER)
+                                .build(),
+                        "gen_l1")
+                .addLayer("gen_l3",
+                        new DenseLayer.Builder()
+                                .nIn(512)
+                                .nOut(SIZE)
+                                .activation(Activation.RELU)
+                                .weightInit(WeightInit.XAVIER)
+                                .build(),
+                        "gen_l2")
+                .addVertex("stack", new StackVertex(), "input_2", "gen_l3")
+                .addLayer("dis_l1",
+                        new DenseLayer.Builder()
+                                .nIn(SIZE)
+                                .nOut(256)
+                                .activation(Activation.RELU)
+                                .weightInit(WeightInit.XAVIER)
+                                .build(),
+                        "stack")
+                .addLayer("dis_l2",
+                        new DenseLayer.Builder()
+                                .nIn(256)
+                                .nOut(128)
+                                .activation(Activation.RELU)
+                                .weightInit(WeightInit.XAVIER)
+                                .build(),
+                        "dis_l1")
+                .addLayer("dis_l3",
+                        new DenseLayer.Builder()
+                                .nIn(128)
+                                .nOut(128)
+                                .activation(Activation.RELU)
+                                .weightInit(WeightInit.XAVIER)
+                                .build(),
+                        "dis_l2")
+                .addLayer("out",
+                        new OutputLayer.Builder(LossFunctions.LossFunction.HINGE)
+                                .nIn(128)
+                                .nOut(1)
+                                .activation(Activation.SIGMOID)
+                                .build(),
+                        "dis_l3")
+                .setOutputs("out");
+        return builder;
+    }
+
     public static void set_lr_to_dis(ComputationGraph net) {
         net.setLearningRate("gen_l1", 0);
         net.setLearningRate("gen_l2", 0);
@@ -206,6 +276,35 @@ public class NetFactory {
         net.setLearningRate("dis_l2", 0);
         net.setLearningRate("dis_l3", 0);
         net.setLearningRate("out", 0);
+    }
+
+    //WGAN weight clip (not used)
+    @Deprecated
+    public static void clip(ComputationGraph net) {
+        for (int i = 0; i < net.getLayer("dis_l1").params().length(); i++) {
+            float f = net.getLayer("dis_l1").params().getFloat(i);
+            f = (float)Math.min(f, MAX_W);
+            f = (float)Math.max(f, -MAX_W);
+            net.getLayer("dis_l1").params().putScalar(i, f);
+        }
+        for (int i = 0; i < net.getLayer("dis_l2").params().length(); i++) {
+            float f = net.getLayer("dis_l2").params().getFloat(i);
+            f = (float)Math.min(f, MAX_W);
+            f = (float)Math.max(f, -MAX_W);
+            net.getLayer("dis_l2").params().putScalar(i, f);
+        }
+        for (int i = 0; i < net.getLayer("dis_l3").params().length(); i++) {
+            float f = net.getLayer("dis_l3").params().getFloat(i);
+            f = (float)Math.min(f, MAX_W);
+            f = (float)Math.max(f, -MAX_W);
+            net.getLayer("dis_l3").params().putScalar(i, f);
+        }
+        for (int i = 0; i < net.getLayer("out").params().length(); i++) {
+            float f = net.getLayer("out").params().getFloat(i);
+            f = (float)Math.min(f, MAX_W);
+            f = (float)Math.max(f, -MAX_W);
+            net.getLayer("out").params().putScalar(i, f);
+        }
     }
 
 }
