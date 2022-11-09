@@ -5,6 +5,7 @@ import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class CWRUDataManager {
@@ -25,6 +26,28 @@ public class CWRUDataManager {
         DataSet dataSet = DataSet.merge(sets);
         dataSet.shuffle();
         return dataSet;
+    }
+
+    public static DataSet genAnnDataSetWithoutShuffle() {
+        List<CWRUBlock> blocks = new ArrayList();
+        for (var data: dataList) {
+            if (data.pos != 0 && data.pos != 6) continue;
+            if (data.depth == 28) continue;
+            data.blocks.forEach(blocks::add);
+        }
+        Collections.shuffle(blocks);
+        INDArray[] input = blocks.stream().map(b->Nd4j.create(b.DE, 1, 512)).toArray(INDArray[]::new);
+        INDArray inputs = Nd4j.vstack(input);
+        INDArray[] output = blocks.stream().map(b->genOutputFromType(b.source.type())).toArray(INDArray[]::new);
+        INDArray outputs = Nd4j.vstack(output);
+        DataSet dataSet = new DataSet(inputs, outputs);
+        return dataSet;
+    }
+
+    public static INDArray genOutputFromType(int type) {
+        INDArray output = Nd4j.zeros(1, 10);
+        output.putScalar(0, type, 1);
+        return output;
     }
 
     public static void AnnData() {

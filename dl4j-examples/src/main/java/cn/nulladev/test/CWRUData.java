@@ -24,7 +24,7 @@ public class CWRUData {
             for (int i = 0; i < size; i++) {
                 blockDE[i] = DE[i + current];
             }
-            CWRUBlock block = new CWRUBlock(size);
+            CWRUBlock block = new CWRUBlock(size, this);
             block.DE = blockDE;
             blocks.add(block);
         }

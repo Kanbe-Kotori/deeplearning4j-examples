@@ -50,10 +50,10 @@ public class Trainer {
     }
 
     public static void ANNResult(DataSet train, DataSet test) throws Exception {
-        MultiLayerNetwork model = MultiLayerNetwork.load(new File("E:/Temp/aan-" + 200 + ".zip"), true);
+        MultiLayerNetwork model = MultiLayerNetwork.load(new File("E:/Temp/aan-" + 1000 + ".zip"), true);
         Evaluation eval = new Evaluation(10);
-        INDArray output = model.output(train.getFeatures());
-        eval.eval(train.getLabels(), output);
+        INDArray output = model.output(test.getFeatures());
+        eval.eval(test.getLabels(), output);
         log.info(eval.stats());
     }
 

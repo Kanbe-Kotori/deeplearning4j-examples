@@ -12,11 +12,12 @@ public class Main {
 
             //CWRUDataManager.AnnData();
 
-            SplitTestAndTrain data = CWRUDataManager.genAnnDataSet().splitTestAndTrain(0.9);
+            SplitTestAndTrain data = CWRUDataManager.genAnnDataSetWithoutShuffle().splitTestAndTrain(0.9);
             //SplitTestAndTrain data = CWRUDataManager.genAEDataSet().splitTestAndTrain(0.9);
             DataSet trainingData = data.getTrain();
             DataSet testData = data.getTest();
 
+            /*
             int[] count = new int[10];
             for (int i = 0; i< trainingData.getLabels().rows(); i++) {
                 for (int j = 0; j< 10; j++) {
@@ -27,11 +28,12 @@ public class Main {
             for (int j = 0; j< 10; j++) {
                 System.out.println(count[j]);
             }
+             */
 
             //Visualizer.INDArray2IMG(trainingData.getFeatures(), "E:/Temp/vis-"+0+".png");
 
             //Trainer.ANN(trainingData, testData);
-            //Trainer.ANNResult(trainingData, testData);
+            Trainer.ANNResult(trainingData, testData);
         } catch (Exception e) {
             e.printStackTrace();
         }
