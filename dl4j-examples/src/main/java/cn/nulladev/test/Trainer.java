@@ -33,10 +33,12 @@ public class Trainer {
         StatsStorageRouter remoteUIRouter = new RemoteUIStatsStorageRouter("http://localhost:9000");
         model.setListeners(new StatsListener(remoteUIRouter));
 
-        final DataSetIterator iterator = getIter(train, 20);
+        DataSetIterator iterator = getIter(train, 20);
 
         for (int x = 0; x< 10000; x++) {
-            iterator.reset();
+            if (!iterator.hasNext()) {
+                iterator = getIter(train, 20);
+            }
             model.fit(iterator);
             if (x % 10 == 0) System.out.println(x);
             if (x % 100 == 0) {
@@ -66,13 +68,15 @@ public class Trainer {
         StatsStorageRouter remoteUIRouter = new RemoteUIStatsStorageRouter("http://localhost:9000");
         model.setListeners(new StatsListener(remoteUIRouter));
 
-        final DataSetIterator iterator = getIter(train, 20);
+        DataSetIterator iterator = getIter(train, 1);
 
         for (int x = 0; x< 10000; x++) {
-            iterator.reset();
+            if (!iterator.hasNext()) {
+                iterator = getIter(train, 1);
+            }
             model.fit(iterator);
             if (x%10==0)System.out.println(x);
-            if (x%1000==0) model.save(new File("E:/Temp/ae-"+x+".zip"), true);
+            if (x%100==0) model.save(new File("E:/Temp/ae-"+x+".zip"), true);
 
             INDArray output = model.output(test.getFeatures());
             Visualizer.INDArray2IMG(output, "E:/Temp/vis-"+x+".png");

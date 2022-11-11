@@ -12,13 +12,13 @@ import java.util.Iterator;
 public class Visualizer {
 
     public static void INDArray2IMG(INDArray array, String name) throws Exception {
-        BufferedImage bi = new BufferedImage(512, 128, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage bi = new BufferedImage(array.columns(), 128, BufferedImage.TYPE_INT_ARGB);
         int prevH = 63;
-        for(int i = 0; i < 512; i++) {
+        for(int i = 0; i < array.columns(); i++) {
             for(int j = 0; j < 128; j++) {
                 bi.setRGB(i, j, 0xFFFFFFFF);
             }
-            int h = (int) (64 * array.getDouble(i) + 64);
+            int h = (int) (-64 * array.getDouble(i) + 64);
             h = Math.min(h,127);
             h = Math.max(h,0);
             for(int j = Math.min(prevH, h); j < Math.max(prevH, h); j++) {
