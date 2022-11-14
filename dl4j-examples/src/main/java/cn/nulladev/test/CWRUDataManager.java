@@ -1,6 +1,7 @@
 package cn.nulladev.test;
 
 import cn.nulladev.util.Complex;
+import cn.nulladev.util.DCT;
 import cn.nulladev.util.FFT;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
@@ -55,6 +56,22 @@ public class CWRUDataManager {
         }
         Collections.shuffle(blocks);
         INDArray[] input = blocks.stream().map(b->Nd4j.create(Complex.absArray(FFT.fft(b.DE)), 1, b.DE.length)).toArray(INDArray[]::new);
+        INDArray inputs = Nd4j.vstack(input);
+        INDArray[] output = blocks.stream().map(b->genOutputFromType(b.source.type())).toArray(INDArray[]::new);
+        INDArray outputs = Nd4j.vstack(output);
+        DataSet dataSet = new DataSet(inputs, outputs);
+        return dataSet;
+    }
+
+    public static DataSet genDCTDataSet() {
+        List<CWRUBlock> blocks = new ArrayList();
+        for (var data: dataList) {
+            if (data.pos != 0 && data.pos != 6) continue;
+            if (data.depth == 28) continue;
+            data.blocks.forEach(blocks::add);
+        }
+        Collections.shuffle(blocks);
+        INDArray[] input = blocks.stream().map(b->Nd4j.create(DCT.dct(b.DE), 1, b.DE.length)).toArray(INDArray[]::new);
         INDArray inputs = Nd4j.vstack(input);
         INDArray[] output = blocks.stream().map(b->genOutputFromType(b.source.type())).toArray(INDArray[]::new);
         INDArray outputs = Nd4j.vstack(output);

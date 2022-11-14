@@ -4,6 +4,7 @@ import org.deeplearning4j.core.storage.StatsStorageRouter;
 import org.deeplearning4j.core.storage.impl.RemoteUIStatsStorageRouter;
 import org.deeplearning4j.datasets.iterator.utilty.ListDataSetIterator;
 import org.deeplearning4j.examples.quickstart.modeling.feedforward.classification.IrisClassifier;
+import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.ui.api.UIServer;
 import org.deeplearning4j.ui.model.stats.StatsListener;
@@ -82,6 +83,34 @@ public class Trainer {
             Visualizer.INDArray2IMG(output, "E:/Temp/vis-"+x+".png");
         }
 
+    }
+
+    public static void CNN(DataSet train, DataSet test) throws Exception {
+        MultiLayerNetwork model = new MultiLayerNetwork(NetFactory.CWRUCNN());
+        model.init();
+        System.out.println(model.summary(InputType.feedForward(2048)));
+
+        UIServer server = UIServer.getInstance();
+        server.enableRemoteListener();
+        StatsStorageRouter remoteUIRouter = new RemoteUIStatsStorageRouter("http://localhost:9000");
+        model.setListeners(new StatsListener(remoteUIRouter));
+
+        DataSetIterator iterator = getIter(train, 256);
+
+        for (int x = 0; x< 1000; x++) {
+            if (!iterator.hasNext()) {
+                iterator = getIter(train, 256);
+            }
+            model.fit(iterator);
+            Evaluation eval = new Evaluation(10);
+            INDArray output = model.output(test.getFeatures());
+            eval.eval(test.getLabels(), output);
+            log.info(eval.stats());
+            if (x % 1 == 0) System.out.println(x);
+            if (x % 10 == 0) {
+                model.save(new File("E:/Temp/cnn-" + x + ".zip"), true);
+            }
+        }
     }
 
     private static DataSetIterator getIter(final DataSet set, final int batchSize) {
